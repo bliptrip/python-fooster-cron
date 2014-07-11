@@ -10,6 +10,7 @@ Below is basic usage for printing a message every hour.
 import cron
 
 scheduler = cron.Scheduler()
-scheduler.add(cron.Job(print, [ 'Hourly function, run every hour at 0 minutes!' ], minute=0))
+scheduler.add(cron.Job(print, [ 'Hourly function, run every hour!' ], minute=0))
+scheduler.add(cron.Job(print, [ 'This one runs every 20 minutes!' ], minute=cron.Every(20)))
 scheduler.start()
 ```
