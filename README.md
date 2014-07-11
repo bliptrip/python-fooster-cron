@@ -4,7 +4,7 @@ cron.py is small cron-like scheduler designed for simple, recurring jobs. It sup
 
 Usage
 -----
-Below is basic usage for printing a message every hour.
+Below is basic usage for printing a message every hour (at minute 0), a set of minutes every hour, and every 20 minutes per hour.
 
 ```
 import cron
