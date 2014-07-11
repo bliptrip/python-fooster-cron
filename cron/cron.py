@@ -5,27 +5,27 @@ name = 'cron.py'
 version = '0.1'
 
 class Field(object):
-	def __init__(self, value):
-		self.value = value
+	def __init__(self, param):
+		self.param = param
 
 class All(Field):
 	def __init__(self):
 		pass
 
-	def __eq__(self, other):
+	def __eq__(self, value):
 		return True
 
 class Every(Field):
-	def __eq__(self, other):
-		return other % self.value == 0
+	def __eq__(self, value):
+		return value % self.param == 0
 
 def Int(Field):
-	def __eq__(self, other):
-		return other == self.value
+	def __eq__(self, value):
+		return value == self.param
 
 def List(Field):
-	def __eq__(self, other):
-		return other in self.value
+	def __eq__(self, value):
+		return value in self.param
 
 def create_field(value):
 	if isinstance(value, Field):
