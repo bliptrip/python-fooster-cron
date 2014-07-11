@@ -6,7 +6,7 @@ Usage
 -----
 Below is basic usage for printing a message every hour (at minute 0), a set of minutes every hour, and every 20 minutes per hour.
 
-```
+```python
 import cron
 
 scheduler = cron.Scheduler()
