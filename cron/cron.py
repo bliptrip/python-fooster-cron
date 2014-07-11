@@ -57,7 +57,7 @@ class Job(object):
 class Scheduler(object):
 	def __init__(self):
 		self.jobs = []
-		self.thread = threading.Thread(target=self.run, daemon=False)
+		self.thread = threading.Thread(target=self.run)
 
 	def add(self, job):
 		self.jobs.append(job)
