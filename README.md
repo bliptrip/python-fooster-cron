@@ -12,6 +12,6 @@ import cron
 scheduler = cron.Scheduler()
 scheduler.add(cron.Job(print, [ 'Hourly function, run every hour on the hour!' ], minute=0))
 scheduler.add(cron.Job(print, [ 'This one runs at special minutes!' ], minute=[ 1, 2, 3, 5, 8, 13, 21, 34, 55 ]))
-scheduler.add(cron.Job(print, [ 'This one runs every 20 minutes!' ], minute=cron.Every(20)))
+scheduler.add(cron.Job(print, [ 'This one runs every 20 minutes within each hour!' ], minute=cron.Every(20)))
 scheduler.start()
 ```
