@@ -68,7 +68,7 @@ class Log(object):
 		self.error('Caught exception:\n\t' + traceback.format_exc().replace('\n', '\n\t'))
 
 class Job(object):
-	def __init__(self, function, args=[], kwargs={}, minute=All(), hour=All(), day=All(), month=All(), weekday=All()):
+	def __init__(self, function, args=(), kwargs={}, minute=All(), hour=All(), day=All(), month=All(), weekday=All()):
 		self.function = function
 		self.args = args
 		self.kwargs = kwargs
