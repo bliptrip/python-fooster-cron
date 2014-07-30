@@ -72,6 +72,7 @@ class Job(object):
 		self.function = function
 		self.args = args
 		self.kwargs = kwargs
+
 		self.minute = create_field(minute)
 		self.hour = create_field(hour)
 		self.day = create_field(day)
