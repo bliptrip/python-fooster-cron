@@ -46,11 +46,14 @@ class Log(object):
 		else:
 			self.log = sys.stderr
 
+		self.log_lock = threading.Lock()
+
 	def timestamp(self):
 		return time.strftime('[%d/%b/%Y:%H:%M:%S %z]')
 
 	def write(self, string):
-		self.log.write(string)
+		with self.log_lock:
+			self.log.write(string)
 
 	def message(self, message):
 		self.write(self.timestamp() + ' ' + message + '\n')
