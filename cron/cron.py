@@ -89,8 +89,9 @@ class Job(object):
 		self.function(*self.args, **self.kwargs)
 
 class Scheduler(object):
-	def __init__(self, log=Log(None)):
+	def __init__(self, log=Log(None), time=time.localtime):
 		self.log = log
+		self.time= time
 
 		self.jobs = []
 
@@ -130,7 +131,7 @@ class Scheduler(object):
 		while self.running:
 			#Get times
 			ctime = time.time()
-			ltime = time.localtime(ctime)
+			ltime = self.time(ctime)
 
 			#Get sleep target to run on the minute
 			sleep_target = ctime + 60 - ltime.tm_sec
