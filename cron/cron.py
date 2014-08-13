@@ -3,7 +3,7 @@ import threading
 import time
 
 name = 'cron.py'
-version = '0.1'
+version = '0.2'
 
 class Field(object):
 	def __init__(self, param):
