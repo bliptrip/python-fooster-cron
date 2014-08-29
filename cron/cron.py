@@ -125,7 +125,7 @@ class Scheduler(object):
 		self.log.info('Scheduler stopped')
 
 	def is_running(self):
-		return self.thread and self.thread.is_alive()
+		return bool(self.thread and self.thread.is_alive())
 
 	def run(self):
 		while self.running:
