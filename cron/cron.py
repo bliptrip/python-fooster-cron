@@ -113,14 +113,17 @@ class Scheduler(object):
 			#Get sleep target to run on the minute
 			sleep_target = ctime + 60 - ltime.tm_sec
 
+			#Copy jobs to prevent iterating over a mutating list
 			with self.jobs_lock:
-				#Go through each job and run it if necessary
-				for job in self.jobs:
-					try:
-						if job.should_run(ltime):
-							job.run()
-					except:
-						self.log.exception('Caught exception on job "' + job.name + '"')
+				jobs = self.jobs.copy()
+
+			#Go through each job and run it if necessary
+			for job in jobs:
+				try:
+					if job.should_run(ltime):
+						job.run()
+				except:
+					self.log.exception('Caught exception on job "' + job.name + '"')
 
 			#Get new time after running jobs
 			ctime = time.time()
