@@ -1,3 +1,4 @@
+import logging
 import sys
 import threading
 import time
@@ -38,43 +39,16 @@ def create_field(value):
 	else:
 		raise TypeError()
 
-class Log(object):
-	def __init__(self, log):
-		if log:
-			os.makedirs(os.path.dirname(log), exist_ok=True)
-			self.log = open(log, 'a', 1)
-		else:
-			self.log = sys.stderr
-
-		self.log_lock = threading.Lock()
-
-	def timestamp(self):
-		return time.strftime('[%d/%b/%Y:%H:%M:%S %z]')
-
-	def write(self, string):
-		with self.log_lock:
-			self.log.write(string)
-
-	def message(self, message):
-		self.write(self.timestamp() + ' ' + message + '\n')
-
-	def info(self, message):
-		self.message('INFO: ' + message)
-
-	def warn(self, message):
-		self.message('WARN: ' + message)
-
-	def error(self, message):
-		self.message('ERROR: ' + message)
-
-	def exception(self):
-		self.error('Caught exception:\n\t' + traceback.format_exc().replace('\n', '\n\t'))
-
 class Job(object):
-	def __init__(self, function, args=(), kwargs={}, minute=All(), hour=All(), day=All(), month=All(), weekday=All()):
+	def __init__(self, function, args=(), kwargs={}, name=None, minute=All(), hour=All(), day=All(), month=All(), weekday=All()):
 		self.function = function
 		self.args = args
 		self.kwargs = kwargs
+
+		if name:
+			self.name = name
+		else:
+			self.name = self.function.__name__
 
 		self.minute = create_field(minute)
 		self.hour = create_field(hour)
@@ -89,20 +63,23 @@ class Job(object):
 		self.function(*self.args, **self.kwargs)
 
 class Scheduler(object):
-	def __init__(self, log=Log(None), time=time.localtime):
+	def __init__(self, log=logging.getLogger(__name__), time=time.localtime):
 		self.log = log
 		self.time= time
 
 		self.jobs = []
+		self.jobs_lock = threading.Lock()
 
 		self.running = False
 		self.thread = None
 
 	def add(self, job):
-		self.jobs.append(job)
+		with self.jobs_lock:
+			self.jobs.append(job)
 
-	def remove(self, ob):
-		self.jobs.remove(job)
+	def remove(self, job):
+		with self.jobs_lock:
+			self.jobs.remove(job)
 
 	def start(self):
 		if self.is_running():
@@ -136,13 +113,14 @@ class Scheduler(object):
 			#Get sleep target to run on the minute
 			sleep_target = ctime + 60 - ltime.tm_sec
 
-			#Go through each job and run it if necessary
-			for job in self.jobs:
-				try:
-					if job.should_run(ltime):
-						job.run()
-				except:
-					self.log.exception()
+			with self.jobs_lock:
+				#Go through each job and run it if necessary
+				for job in self.jobs:
+					try:
+						if job.should_run(ltime):
+							job.run()
+					except:
+						self.log.exception('Caught exception on job "' + job.name + '"')
 
 			#Get new time after running jobs
 			ctime = time.time()
