@@ -28,6 +28,7 @@ cron.Job(function, args=[], kwargs={}, name=None, minute=cron.All(), hour=cron.A
 ```
 
 Attributes:
+
 | Attribute | Value                                  |
 | --------- | -------------------------------------- |
 | function  | function to call                       |
