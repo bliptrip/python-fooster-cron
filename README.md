@@ -24,7 +24,7 @@ scheduler.start()
 ### cron.Job
 Prototype:
 ```python
-cron.Job(function, args=[], kwargs={}, name=None, minute=cron.All(), hour=cron.All(), day=cron.All(), month=cron.All(), weekday=cron.All())
+cron.Job(function, args=(), kwargs={}, name=None, minute=cron.All(), hour=cron.All(), day=cron.All(), month=cron.All(), weekday=cron.All())
 ```
 
 Attributes:
@@ -32,7 +32,7 @@ Attributes:
 | Attribute | Value                                  |
 | --------- | -------------------------------------- |
 | function  | function to call                       |
-| args      | list of function arguments             |
+| args      | tuple of function arguments            |
 | kwargs    | dictionary of named function arguments |
 | minute    | range [0, 59]                          |
 | hour      | range [0, 23]                          |
