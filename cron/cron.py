@@ -128,5 +128,9 @@ class Scheduler(object):
 			#Get new time after running jobs
 			ctime = time.time()
 
-			#Wait until sleep target
-			time.sleep(sleep_target - ctime)
+			try:
+				#Wait until sleep target
+				time.sleep(sleep_target - ctime)
+			except ValueError:
+				#If sleep target is missed, don't bother sleeping
+				pass
