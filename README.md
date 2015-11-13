@@ -1,5 +1,5 @@
 cron.py
-=====
+=======
 cron.py is small cron-like scheduler designed for simple, recurring jobs. It supports a basic set of field values though is extensible by using any class inheriting from `cron.Field`.
 
 Usage
