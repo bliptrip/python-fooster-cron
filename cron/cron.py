@@ -10,6 +10,9 @@ class Field(object):
 	def __init__(self, param):
 		self.param = param
 
+	def __repr__(self):
+		return 'cron.Field(' + repr(self.param) + ')'
+
 class All(Field):
 	def __init__(self):
 		pass
@@ -17,17 +20,29 @@ class All(Field):
 	def __eq__(self, value):
 		return True
 
+	def __repr__(self):
+		return 'cron.All()'
+
 class Every(Field):
 	def __eq__(self, value):
 		return value % self.param == 0
+
+	def __repr__(self):
+		return 'cron.Every(' + repr(self.param) + ')'
 
 class Int(Field):
 	def __eq__(self, value):
 		return value == self.param
 
+	def __repr__(self):
+		return repr(self.param)
+
 class List(Field):
 	def __eq__(self, value):
 		return value in self.param
+
+	def __repr__(self):
+		return repr(self.param)
 
 def create_field(value):
 	if isinstance(value, Field):
@@ -56,6 +71,12 @@ class Job(object):
 		self.month = create_field(month)
 		self.weekday = create_field(weekday)
 
+	def __str__(self):
+		return '<cron.Job \'' + self.name + '\'>'
+
+	def __repr__(self):
+		return 'cron.Job(' + repr(self.function) + ', args=' + repr(self.args) + ', kwargs=' + repr(self.kwargs) + ', name=' + repr(self.name) + ', minute=' + repr(self.minute) + ', hour=' + repr(self.hour) + ', day=' + repr(self.day) + ', month=' + repr(self.month) + ', weekday=' + repr(self.weekday) + ')'
+
 	def should_run(self, time):
 		return time.tm_min == self.minute and time.tm_hour == self.hour and time.tm_mday == self.day and time.tm_mon == self.month and time.tm_wday == self.weekday
 
@@ -72,6 +93,9 @@ class Scheduler(object):
 
 		self.running = False
 		self.thread = None
+
+	def __repr__(self):
+		return 'cron.Scheduler(log=' + repr(self.log) + ', time=' + repr(self.time) + ')'
 
 	def add(self, job):
 		with self.jobs_lock:
