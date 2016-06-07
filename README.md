@@ -10,14 +10,14 @@ Below is basic usage for calling a function and printing a message every hour (a
 import cron
 
 def count():
-	for i in range(5):
-		print(i)
+    for i in range(5):
+        print(i)
 
 scheduler = cron.Scheduler()
 scheduler.add(cron.Job(count, minute=5))
-scheduler.add(cron.Job(print, [ 'Hourly function, run every hour on the hour!' ], name='hourly', minute=0))
-scheduler.add(cron.Job(print, [ 'This one runs at special minutes!' ], minute=[ 1, 2, 3, 5, 8, 13, 21, 34, 55 ]))
-scheduler.add(cron.Job(print, [ 'This one runs every 20 minutes within each hour!' ], minute=cron.Every(20)))
+scheduler.add(cron.Job(print, ['Hourly function, run every hour on the hour!'], name='hourly', minute=0))
+scheduler.add(cron.Job(print, ['This one runs at special minutes!'], minute=[1, 2, 3, 5, 8, 13, 21, 34, 55]))
+scheduler.add(cron.Job(print, ['This one runs every 20 minutes within each hour!'], minute=cron.Every(20)))
 scheduler.start()
 ```
 
@@ -49,15 +49,15 @@ To make a custom field, inherit from `cron.Field` and change the `__eq__` method
 ##### List
 ```python
 class List(cron.Field):
-	def __eq__(self, value):
-		return value in self.param
+    def __eq__(self, value):
+        return value in self.param
 ```
 ##### All
 ```python
 class All(cron.Field):
-	def __init__(self):
-		pass
+    def __init__(self):
+        pass
 
-	def __eq__(self, value):
-		return True
+    def __eq__(self, value):
+        return True
 ```
