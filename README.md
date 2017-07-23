@@ -7,8 +7,6 @@ Usage
 Below is basic usage for calling a function and printing a message every hour (at minute 0), a set of minutes every hour, and every 20 minutes per hour.
 
 ```python
-import time
-
 import cron
 
 def count():
@@ -22,9 +20,7 @@ scheduler.add(cron.Job(print, ['This one runs at special minutes!'], minute=[1, 
 scheduler.add(cron.Job(print, ['This one runs every 20 minutes within each hour!'], minute=cron.Every(20)))
 scheduler.start()
 
-time.sleep(86400)
-
-scheduler.stop()
+scheduler.join()
 ```
 
 ### cron.Job

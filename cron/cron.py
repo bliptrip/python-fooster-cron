@@ -96,7 +96,7 @@ class Scheduler(object):
         self.time = time
 
         self.manager = multiprocessing.Manager()
-        self.namespace = multiprocessing.Namespace()
+        self.namespace = self.manager.Namespace()
 
         self.jobs = self.manager.list()
         self.jobs_lock = multiprocessing.Lock()
@@ -140,6 +140,9 @@ class Scheduler(object):
 
     def is_running(self):
         return bool(self.process and self.process.is_alive())
+
+    def join(self):
+        self.process.join()
 
     def run(self):
         while self.running.value:
