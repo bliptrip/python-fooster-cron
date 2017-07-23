@@ -91,11 +91,15 @@ class Job(object):
 
 
 class Scheduler(object):
-    def __init__(self, log=logging.getLogger(__name__), time=time.localtime, manager=multiprocessing.Manager()):
+    def __init__(self, log=logging.getLogger(__name__), time=time.localtime, manager=None):
         self.log = log
         self.time = time
 
-        self.manager = manager
+        if manager:
+            self.manager = manager
+        else:
+            self.manager = multiprocessing.Manager()
+
         self.namespace = self.manager.Namespace()
 
         self.jobs = self.manager.list()
