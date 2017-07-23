@@ -1,12 +1,14 @@
 cron.py
 =======
-cron.py is small cron-like scheduler designed for simple, recurring jobs. It supports a basic set of field values though is extensible by using any class inheriting from `cron.Field`.
+cron.py is small cron-like scheduler designed for simple, recurring jobs. It supports a basic set of field values though is extensible by using any class inheriting from `cron.Field`. Because this package is multiprocessing, shared objects must be put into `scheduler.namespace`.
 
 Usage
 -----
 Below is basic usage for calling a function and printing a message every hour (at minute 0), a set of minutes every hour, and every 20 minutes per hour.
 
 ```python
+import time
+
 import cron
 
 def count():
@@ -19,6 +21,10 @@ scheduler.add(cron.Job(print, ['Hourly function, run every hour on the hour!'], 
 scheduler.add(cron.Job(print, ['This one runs at special minutes!'], minute=[1, 2, 3, 5, 8, 13, 21, 34, 55]))
 scheduler.add(cron.Job(print, ['This one runs every 20 minutes within each hour!'], minute=cron.Every(20)))
 scheduler.start()
+
+time.sleep(86400)
+
+scheduler.stop()
 ```
 
 ### cron.Job

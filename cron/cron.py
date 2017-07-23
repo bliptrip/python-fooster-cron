@@ -1,9 +1,9 @@
 import logging
-import threading
+import multiprocessing
 import time
 
 name = 'cron.py'
-version = '0.3'
+version = '0.4'
 
 
 class Field(object):
@@ -95,11 +95,15 @@ class Scheduler(object):
         self.log = log
         self.time = time
 
-        self.jobs = []
-        self.jobs_lock = threading.Lock()
+        self.manager = multiprocessing.Manager()
+        self.namespace = multiprocessing.Namespace()
 
-        self.running = False
-        self.thread = None
+        self.jobs = self.manager.list()
+        self.jobs_lock = multiprocessing.Lock()
+
+        self.running = self.manager.Value(bool, False)
+
+        self.process = None
 
     def __repr__(self):
         return 'cron.Scheduler(log=' + repr(self.log) + ', time=' + repr(self.time) + ')'
@@ -116,9 +120,10 @@ class Scheduler(object):
         if self.is_running():
             return
 
-        self.running = True
-        self.thread = threading.Thread(target=self.run)
-        self.thread.start()
+        self.running.value = True
+
+        self.process = multiprocessing.Process(target=self.run)
+        self.process.start()
 
         self.log.info('Scheduler running')
 
@@ -126,17 +131,18 @@ class Scheduler(object):
         if not self.is_running():
             return
 
-        self.running = False
-        self.thread.join()
-        self.thread = None
+        self.running.value = False
+
+        self.process.join()
+        self.process = None
 
         self.log.info('Scheduler stopped')
 
     def is_running(self):
-        return bool(self.thread and self.thread.is_alive())
+        return bool(self.process and self.process.is_alive())
 
     def run(self):
-        while self.running:
+        while self.running.value:
             # get times
             ctime = time.time()
             ltime = self.time(ctime)
@@ -146,7 +152,7 @@ class Scheduler(object):
 
             # copy jobs to prevent iterating over a mutating list
             with self.jobs_lock:
-                jobs = self.jobs.copy()
+                jobs = self.jobs[:]
 
             # go through each job and run it if necessary
             for job in jobs:
