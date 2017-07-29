@@ -92,8 +92,12 @@ class Job(object):
 
 
 class Scheduler(object):
-    def __init__(self, log=logging.getLogger(__name__), time=time.localtime, manager=None):
-        self.log = log
+    def __init__(self, log=None, time=time.localtime, manager=None):
+        if log:
+            self.log = log
+        else:
+            self.log = logging.getLogger('cron')
+
         self.time = time
 
         if manager:
