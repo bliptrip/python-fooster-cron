@@ -101,10 +101,8 @@ class Scheduler(object):
         else:
             self.manager = multiprocessing.Manager()
 
-        self.namespace = self.manager.Namespace()
-
         self.jobs = self.manager.list()
-        self.jobs_lock = multiprocessing.Lock()
+        self.jobs_lock = self.manager.Lock()
 
         self.running = self.manager.Value(bool, False)
 

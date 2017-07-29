@@ -1,6 +1,6 @@
 cron.py
 =======
-cron.py is small cron-like scheduler designed for simple, recurring jobs. It supports a basic set of field values though is extensible by using any class inheriting from `cron.Field`. Because this package is multiprocessing, shared objects must be put into `scheduler.namespace`.
+cron.py is small cron-like scheduler designed for simple, recurring jobs. It supports a basic set of field values though is extensible by using any class inheriting from `cron.Field`. Because this package is multiprocessing, shared objects must be synchronized, e.g. by `multiprocessing.Manager`.
 
 Usage
 -----
