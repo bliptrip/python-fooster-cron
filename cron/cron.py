@@ -92,8 +92,12 @@ class Job(object):
 
 
 class Scheduler(object):
-    def __init__(self, log=logging.getLogger(__name__), time=time.localtime, manager=None):
-        self.log = log
+    def __init__(self, log=None, time=time.localtime, manager=None):
+        if log:
+            self.log = log
+        else:
+            self.log = logging.getLogger('cron')
+
         self.time = time
 
         if manager:
@@ -103,6 +107,8 @@ class Scheduler(object):
 
         self.jobs = self.manager.list()
         self.jobs_lock = self.manager.Lock()
+
+        self.log_lock = self.manager.Lock()
 
         self.running = self.manager.Value(bool, False)
 
@@ -128,7 +134,8 @@ class Scheduler(object):
         self.process = multiprocessing.Process(target=self.run)
         self.process.start()
 
-        self.log.info('Scheduler running')
+        with self.log_lock:
+            self.log.info('Scheduler running')
 
     def stop(self):
         if not self.is_running():
@@ -139,7 +146,8 @@ class Scheduler(object):
         self.process.join()
         self.process = None
 
-        self.log.info('Scheduler stopped')
+        with self.log_lock:
+            self.log.info('Scheduler stopped')
 
     def is_running(self):
         return bool(self.process and self.process.is_alive())
@@ -166,7 +174,8 @@ class Scheduler(object):
                     if job.should_run(ltime):
                         job.run()
                 except:
-                    self.log.exception('Caught exception on job "' + job.name + '"')
+                    with self.log_lock:
+                        self.log.exception('Caught exception on job "' + job.name + '"')
 
             # get new time after running jobs
             ctime = time.time()
