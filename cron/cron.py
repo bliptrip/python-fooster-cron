@@ -92,7 +92,7 @@ class Job(object):
 
 
 class Scheduler(object):
-    def __init__(self, log=None, time=time.localtime, manager=None):
+    def __init__(self, log=None, time=time.localtime, sync=None):
         if log:
             self.log = log
         else:
@@ -100,15 +100,15 @@ class Scheduler(object):
 
         self.time = time
 
-        if manager:
-            self.manager = manager
+        if sync:
+            self.sync = sync
         else:
-            self.manager = multiprocessing.Manager()
+            self.sync = multiprocessing.Manager()
 
-        self.jobs = self.manager.list()
-        self.jobs_lock = self.manager.Lock()
+        self.jobs = self.sync.list()
+        self.jobs_lock = self.sync.Lock()
 
-        self.running = self.manager.Value(bool, False)
+        self.running = self.sync.Value(bool, False)
 
         self.process = None
 
