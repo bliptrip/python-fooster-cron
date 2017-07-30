@@ -4,7 +4,7 @@ import time
 
 
 name = 'cron.py'
-version = '0.4'
+version = '0.7'
 
 
 class Field(object):
