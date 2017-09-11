@@ -4,7 +4,7 @@ import time
 
 
 name = 'cron.py'
-version = '0.7'
+version = '0.8'
 
 
 class Field(object):
@@ -92,23 +92,16 @@ class Job(object):
 
 
 class Scheduler(object):
-    def __init__(self, log=None, time=time.localtime, sync=None):
+    def __init__(self, log=None, time=time.localtime):
         if log:
             self.log = log
         else:
             self.log = logging.getLogger('cron')
 
         self.time = time
+        self.jobs = []
 
-        if sync:
-            self.sync = sync
-        else:
-            self.sync = multiprocessing.Manager()
-
-        self.jobs = self.sync.list()
-        self.jobs_lock = self.sync.Lock()
-
-        self.running = self.sync.Value(bool, False)
+        self.running = multiprocessing.Value('b', False)
 
         self.process = None
 
@@ -116,12 +109,16 @@ class Scheduler(object):
         return 'cron.Scheduler(log=' + repr(self.log) + ', time=' + repr(self.time) + ')'
 
     def add(self, job):
-        with self.jobs_lock:
-            self.jobs.append(job)
+        if self.is_running():
+            raise AttributeError('Cannot modify running scheduler')
+
+        self.jobs.append(job)
 
     def remove(self, job):
-        with self.jobs_lock:
-            self.jobs.remove(job)
+        if self.is_running():
+            raise AttributeError('Cannot modify running scheduler')
+
+        self.jobs.remove(job)
 
     def start(self):
         if self.is_running():
@@ -161,8 +158,7 @@ class Scheduler(object):
             sleep_target = ctime + 60 - ltime.tm_sec
 
             # copy jobs to prevent iterating over a mutating list
-            with self.jobs_lock:
-                jobs = self.jobs[:]
+            jobs = self.jobs[:]
 
             # go through each job and run it if necessary
             for job in jobs:
