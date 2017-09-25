@@ -3,7 +3,7 @@ import multiprocessing
 import time
 
 
-name = 'cron.py'
+name = 'fooster-cron'
 version = '0.8'
 
 
