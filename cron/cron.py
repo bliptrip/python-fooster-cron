@@ -4,7 +4,7 @@ import time
 
 
 name = 'fooster-cron'
-version = '0.8'
+version = '0.8.1'
 
 
 class Field(object):

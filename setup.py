@@ -35,6 +35,7 @@ setup(
     name=name,
     version=version,
     description='a small cron-like scheduler in Python',
+    url='https://github.com/fkmclane/python-fooster-cron',
     license='MIT',
     author='Foster McLane',
     author_email='fkmclane@gmail.com',
