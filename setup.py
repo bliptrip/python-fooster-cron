@@ -27,7 +27,7 @@ def find(haystack, *needles):
     return values
 
 
-with open(os.path.join(os.path.dirname(__file__), 'cron', 'cron.py'), 'r') as cron:
+with open(os.path.join(os.path.dirname(__file__), 'fooster', 'cron', 'cron.py'), 'r') as cron:
     name, version = find(cron, 'name', 'version')
 
 
@@ -40,4 +40,5 @@ setup(
     author='Foster McLane',
     author_email='fkmclane@gmail.com',
     packages=find_packages(),
+    namespace_packages=['fooster'],
 )

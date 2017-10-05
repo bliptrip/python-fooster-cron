@@ -7,7 +7,7 @@ Usage
 Below is basic usage for calling a function and printing a message every hour (at minute 0), a set of minutes every hour, and every 20 minutes per hour.
 
 ```python
-import cron
+from fooster import cron
 
 def count():
     for i in range(5):
