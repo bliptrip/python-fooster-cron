@@ -126,7 +126,7 @@ class Scheduler(object):
 
         self.running.value = True
 
-        self.process = multiprocessing.Process(target=self.run)
+        self.process = multiprocessing.Process(target=self.run, name='cron')
         self.process.start()
 
         self.log.info('Scheduler running')
