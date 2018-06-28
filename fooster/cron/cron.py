@@ -92,7 +92,7 @@ class Job(object):
 
 
 class Scheduler(object):
-    def __init__(self, log=None, time=time.localtime):
+    def __init__(self, log=None, time=time.localtime, poll_interval=0.2):
         if log:
             self.log = log
         else:
@@ -100,6 +100,8 @@ class Scheduler(object):
 
         self.time = time
         self.jobs = []
+
+        self.poll_interval = poll_interval
 
         self.running = multiprocessing.Value('b', False)
 
@@ -168,12 +170,8 @@ class Scheduler(object):
                 except:
                     self.log.exception('Caught exception on job "' + job.name + '"')
 
-            # get new time after running jobs
-            ctime = time.time()
+            while time.time() < sleep_target:
+                if not self.running.value:
+                    break
 
-            try:
-                # wait until sleep target
-                time.sleep(sleep_target - ctime)
-            except ValueError:
-                # if sleep target is missed, don't bother sleeping
-                pass
+                time.sleep(self.poll_interval)
