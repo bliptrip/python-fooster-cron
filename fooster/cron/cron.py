@@ -1,10 +1,11 @@
 import logging
 import multiprocessing
+import signal
 import time
 
 
 name = 'fooster-cron'
-version = '0.8.3'
+version = '0.8.4'
 
 
 class Field(object):
@@ -92,7 +93,7 @@ class Job(object):
 
 
 class Scheduler(object):
-    def __init__(self, log=None, time=time.localtime, poll_interval=0.2):
+    def __init__(self, log=None, time=time.localtime, poll_interval=0.2, sync=None):
         if log:
             self.log = log
         else:
@@ -103,7 +104,14 @@ class Scheduler(object):
 
         self.poll_interval = poll_interval
 
-        self.running = multiprocessing.Value('b', False)
+        if sync:
+            self.sync = sync
+        else:
+            orig_sigint = signal.signal(signal.SIGINT, signal.SIG_IGN)
+            self.sync = multiprocessing.Manager()
+            signal.signal(signal.SIGINT, orig_sigint)
+
+        self.running = self.sync.Value('b', False)
 
         self.process = None
 
@@ -151,6 +159,9 @@ class Scheduler(object):
         self.process.join()
 
     def run(self):
+        # ignore SIGINT
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
         while self.running.value:
             # get times
             ctime = time.time()
