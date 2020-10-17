@@ -1,9 +1,12 @@
 fooster-cron
 ============
+
 fooster-cron is small cron-like scheduler designed for simple, recurring jobs. It supports a basic set of field values though is extensible by using any class inheriting from `cron.Field`. Because this package is multiprocessing, shared objects must be synchronized, e.g. by `multiprocessing.Manager`.
+
 
 Usage
 -----
+
 Below is basic usage for calling a function and printing a message every hour (at minute 0), a set of minutes every hour, and every 20 minutes per hour.
 
 ```python
@@ -23,7 +26,9 @@ scheduler.start()
 scheduler.join()
 ```
 
+
 ### cron.Job
+
 Prototype:
 ```python
 cron.Job(function, args=(), kwargs={}, name=None, minute=cron.All(), hour=cron.All(), day=cron.All(), month=cron.All(), weekday=cron.All())
@@ -44,17 +49,23 @@ Attributes:
 
 
 ### cron.Field
+
 To make a custom field, inherit from `cron.Field` and change the `__eq__` method to return `True` when the passed value matches. The param member of the class is automatically populated with the passed argument unless the `__init__` method is overridden. The value passed is a value from one of the `time.struct_time` fields.
+
 
 #### Examples
 
 ##### List
+
 ```python
 class List(cron.Field):
     def __eq__(self, value):
         return value in self.param
 ```
+
+
 ##### All
+
 ```python
 class All(cron.Field):
     def __init__(self):
