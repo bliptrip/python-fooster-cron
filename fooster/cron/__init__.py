@@ -1,20 +1,13 @@
 import logging
-import multiprocessing
-import signal
 import sys
+from threading import Thread,Lock
 import time
 
 
 __all__ = ['Field', 'All', 'Every', 'Int', 'List', 'Job', 'Scheduler']
 
 
-__version__ = '0.9.0'
-
-
-if sys.version_info >= (3, 7):
-    start_method = 'spawn'
-else:
-    start_method = 'fork'
+__version__ = '0.1.0'
 
 
 class Field(object):
@@ -76,12 +69,10 @@ class Job(object):
         self.function = function
         self.args = args
         self.kwargs = kwargs
-
         if name:
             self.name = name
         else:
             self.name = self.function.__name__
-
         self.minute = create_field(minute)
         self.hour = create_field(hour)
         self.day = create_field(day)
@@ -107,74 +98,59 @@ class Scheduler(object):
             self.log = log
         else:
             self.log = logging.getLogger('cron')
-
-        self.time = time
-        self.jobs = []
-
-        self.poll_interval = poll_interval
-
-        self.running = multiprocessing.get_context(start_method).Value('b', False)
-
-        self.process = None
+        self.time           = time
+        self.jobs           = []
+        self.poll_interval  = poll_interval
+        self._lock          = Lock()
+        self.running        = False
+        self.thread         = None
 
     def __repr__(self):
         return 'cron.Scheduler(log=' + repr(self.log) + ', time=' + repr(self.time) + ')'
 
     def add(self, job):
-        if self.is_running():
-            raise AttributeError('Cannot modify running scheduler')
-
+        self._lock.acquire()
         self.jobs.append(job)
+        self._lock.release()
 
     def remove(self, job):
-        if self.is_running():
-            raise AttributeError('Cannot modify running scheduler')
-
+        self._lock.acquire()
         self.jobs.remove(job)
+        self._lock.release()
 
     def start(self):
         if self.is_running():
             return
-
-        self.running.value = True
-
-        self.process = multiprocessing.get_context(start_method).Process(target=self.run, name='cron')
-        self.process.start()
-
+        self.thread = Thread(target=self.run, name='bliptrip_cron', daemon=True)
+        self.running = True
+        self.thread.start()
         self.log.info('Scheduler running')
 
     def stop(self):
         if not self.is_running():
             return
-
-        self.running.value = False
-
-        self.process.join()
-        self.process = None
-
+        self.running = False
+        self.thread.join() #Wait for scheduler to stop
         self.log.info('Scheduler stopped')
 
     def is_running(self):
-        return bool(self.process and self.process.is_alive())
+        return bool(self.thread) and self.running
 
     def join(self):
-        self.process.join()
+        if bool(self.thread):
+            self.thread.join()
 
     def run(self):
-        # ignore SIGINT
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-        while self.running.value:
+        while self.running:
             # get times
             ctime = time.time()
             ltime = self.time(ctime)
-
             # get sleep target to run on the minute
             sleep_target = ctime + 60 - ltime.tm_sec
-
             # copy jobs to prevent iterating over a mutating list
+            self._lock.acquire()
             jobs = self.jobs[:]
-
+            self._lock.release()
             # go through each job and run it if necessary
             for job in jobs:
                 try:
@@ -182,9 +158,7 @@ class Scheduler(object):
                         job.run()
                 except Exception:
                     self.log.exception('Caught exception on job "' + job.name + '"')
-
             while time.time() < sleep_target:
-                if not self.running.value:
+                if not self.running:
                     break
-
                 time.sleep(self.poll_interval)
